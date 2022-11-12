@@ -1,0 +1,7 @@
+*
+!.gitignore
+!ftdetect
+!ftdetect/*
+!lua
+!lua/*.lua
+!init.lua
