@@ -31,7 +31,7 @@ return require('packer').startup(function(use)
   }
   use {
     'mrshmllow/document-color.nvim',
-    config = function() require('document-color').setup{mode = "background"} end
+    config = function() return require('document-color').setup{mode = "background"} end
   }
   use {
     'neovim/nvim-lspconfig',
@@ -39,7 +39,11 @@ return require('packer').startup(function(use)
   }
   use {
     'mfussenegger/nvim-dap',
-    config = function() require('debugging') end
+    config = function() return require('debugging') end
+  }
+  use {
+    'lvimuser/lsp-inlayhints.nvim',
+    config = function() return require('lsp-inlayhints').setup{} end
   }
   use 'onsails/lspkind-nvim'
   use 'ibhagwan/smartyank.nvim'
@@ -102,11 +106,23 @@ return require('packer').startup(function(use)
     after = 'nvim-lspconfig'
   }
   use {
+    'sigmaSd/deno-nvim',
+    after = 'nvim-lspconfig'
+  }
+  use {
+    'michaelb/sniprun',
+    ft = 'markdown',
+    run = 'bash ./install.sh'
+  }
+  use {
     'kevinhwang91/nvim-bqf',
     ft = 'qf'
   }
   use {
     'nvim-treesitter/nvim-treesitter',
+    run = function()
+      pcall(require('nvim-treesitter.install').update { with_sync = true })
+    end,
     config = function()
       require('nvim-treesitter.configs').setup{
         context_commentstring = { enable = true },
@@ -116,6 +132,57 @@ return require('packer').startup(function(use)
           'bash', 'c', 'css', 'html', 'http', 'json',
           'typescript', 'tsx', 'javascript', 'lua',
           'php', 'python', 'regex'
+        },
+        incremental_selection = {
+          enable = true,
+          keymaps = {
+            init_selection = '<c-space>',
+            node_incremental = '<c-space>',
+            scope_incremental = '<c-s>',
+            node_decremental = '<c-backspace>',
+          },
+        },
+        textobjects = {
+          select = {
+            enable = true,
+            lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
+            keymaps = {
+              -- You can use the capture groups defined in textobjects.scm
+              ['af'] = '@function.outer',
+              ['if'] = '@function.inner',
+              ['ac'] = '@class.outer',
+              ['ic'] = '@class.inner',
+            },
+          },
+          move = {
+            enable = true,
+            set_jumps = true, -- whether to set jumps in the jumplist
+            goto_next_start = {
+              [']m'] = '@function.outer',
+              [']]'] = '@class.outer',
+            },
+            goto_next_end = {
+              [']M'] = '@function.outer',
+              [']['] = '@class.outer',
+            },
+            goto_previous_start = {
+              ['[m'] = '@function.outer',
+              ['[['] = '@class.outer',
+            },
+            goto_previous_end = {
+              ['[M'] = '@function.outer',
+              ['[]'] = '@class.outer',
+            },
+          },
+          swap = {
+            enable = true,
+            swap_next = {
+              ['<leader>a'] = '@parameter.inner',
+            },
+            swap_previous = {
+              ['<leader>A'] = '@parameter.inner',
+            },
+          },
         },
       }
     end,

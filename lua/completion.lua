@@ -3,6 +3,7 @@ local luasnip = require('luasnip')
 local kind    = require('lspkind')
 local lsp     = require('lspconfig')
 local navic   = require('nvim-navic')
+local deno    = require('deno-nvim')
 
 luasnip.config.setup({enable_autosnippets = true})
 require('luasnip.loaders.from_lua').lazy_load({paths = vim.fn.stdpath('config') .. "/snippets"})
@@ -25,11 +26,34 @@ local on_a = function(client, bufnr)
   navic.attach(client, bufnr)
 end
 
+-- deno-nvim will setup lsp-config for denols
+-- otherwise don't forget to add the root_dir option to prevent using it for typescript files in a node project
+-- root_dir = nvim_lsp.util.root_pattern("deno.json", "deno.jsonc")
+-- lsp.denols.setup{ capabilities = cap, on_attach = on_a, init_options = { lint = true } }
+deno.setup({
+  server = {
+    on_attach = on_a,
+    capabilites = cap,
+    init_options = { lint = true },
+    settings = {
+      deno = {
+        inlayHints = {
+          parameterNames = { enabled = "all" },
+          parameterTypes = { enabled = true },
+          variableTypes = { enabled = true },
+          propertyDeclarationTypes = { enabled = true },
+          functionLikeReturnTypes = { enabled = true },
+          enumMemberValues = { enabled = true },
+        }
+      }
+    }
+  }
+})
+
 lsp.cssls.setup{ capabilities = cap, on_attach = on_a }
 lsp.html.setup{ capabilities = cap, on_attach = on_a }
 lsp.tailwindcss.setup{ capabilities = cap, on_attach = on_a }
-lsp.tsserver.setup{ capabilities = cap, on_attach = on_a }
-lsp.denols.setup{ capabilities = cap, on_attach = on_a, init_options = { lint = true } }
+lsp.tsserver.setup{ capabilities = cap, on_attach = on_a, root_dir = lsp.util.root_pattern("package.json") }
 lsp.gdscript.setup{ capabilities = cap, on_attach = on_a }
 lsp.clangd.setup{ capabilities = cap, on_attach = on_a }
 

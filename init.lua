@@ -11,6 +11,8 @@ require('plugins')
 vim.cmd.filetype('plugin', 'indent', 'on')
 vim.cmd.syntax('on')
 g.loaded_spellfile_plugin = 1
+-- for sniprun
+g.markdown_fenced_languages = { "javascript", "typescript", "bash", "lua", "python" }
 
 o.autoindent    = true  -- Maintain indent
 o.breakindent   = true  -- Maintain visually wrapped indent
@@ -310,5 +312,65 @@ vim.api.nvim_create_autocmd('LspAttach', {
     keymap.set('n', '<space>f', function() vim.lsp.buf.format { async = true } end, { noremap=true, silent=true, buffer = args.buf })
     keymap.set('n', '<space>ca', vim.lsp.buf.code_action, { noremap=true, silent=true, buffer = args.buf })
     keymap.set('n', '<space>rn', vim.lsp.buf.rename, { noremap=true, silent=true, buffer = args.buf })
+    if not (args.data and args.data.client_id) then
+      return
+    end
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    require('lsp-inlayhints').on_attach(client, args.buf)
   end,
+})
+
+vim.api.nvim_create_augroup('onWrite', {clear = true})
+vim.api.nvim_create_autocmd('BufWritePre', {
+  group = 'onWrite',
+  pattern = '*.tsx,*.ts,*.jsx,*.js',
+  callback = function ()
+    vim.lsp.buf.format()
+  end,
+})
+vim.api.nvim_create_autocmd('BufWritePost', {
+  group = 'onWrite',
+  pattern = 'plugins.lua',
+  callback = function ()
+    require('packer').compile()
+  end,
+})
+
+vim.api.nvim_create_augroup('help', {clear=true})
+vim.api.nvim_create_autocmd('FileType', {
+  group    = 'help',
+  pattern  = { 'man',  'help' },
+  callback = function()
+    keymap.set('n', 'q', '<Cmd>bwipeout<cr>', { silent=true, buffer=true, desc='close window and delete buffer' })
+  end
+})
+vim.api.nvim_create_autocmd('BufWinEnter', {
+  group    = 'help',
+  pattern  = { 'man://*,',  '*/nvim/runtime/doc/*' },
+  -- once     = true,
+  callback = function()
+    vim.api.nvim_exec('wincmd L', nil)
+    vim.api.nvim_exec('silent vertical resize 80', nil)
+  end
+})
+vim.api.nvim_create_autocmd('FileType', {
+  group    = 'help',
+  pattern  = 'help',
+  callback = function()
+    keymap.set('n', '<enter>'    , '<c-]>', { silent=true, buffer=true, desc='jump to specific subjects by using tags' })
+    keymap.set('n', '<backspace>', '<c-o>', { silent=true, buffer=true, desc='jump back to the previous subject' })
+    keymap.set('n', '<tab>',   "/\\([\\|*']\\)\\zs\\S*\\ze\\1<cr>", { silent=true, buffer=true, desc='select next tag' })
+    keymap.set('n', '<s-tab>', "?\\([\\|*']\\)\\zs\\S*\\ze\\1<cr>", { silent=true, buffer=true, desc='select prev tag' })
+  end
+})
+
+vim.api.nvim_create_augroup('sniprun', {clear=true})
+vim.api.nvim_create_autocmd('FileType', {
+  group    = 'sniprun',
+  pattern  = 'markdown',
+  callback = function()
+    keymap.set('v', 'f', '<Plug>SnipRun', {silent = true})
+    keymap.set('n', '<leader>f', '<Plug>SnipRunOperator', {silent = true})
+    keymap.set('n', '<leader>ff', '<Plug>SnipRun', {silent = true})
+  end
 })
