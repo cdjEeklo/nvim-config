@@ -1,7 +1,22 @@
 local o,g,w,b,fn = vim.opt,vim.g,vim.wo,vim.bo,vim.fn
 
-local loader_ok, loader = pcall(require, 'impatient')
-if loader_ok then
+local install_path = vim.fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
+if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
+  vim.cmd.packadd('packer.nvim')
+  if pcall(require, 'plugins') then
+    vim.cmd.sleep('100m')
+    require('packer').sync()
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'PackerComplete',
+      once = true,
+      callback = function()
+        vim.sleep('100m')
+        vim.cmd.quitall()
+      end
+    })
+  end
+elseif pcall(require, 'impatient') then
   require('impatient')
 end
 

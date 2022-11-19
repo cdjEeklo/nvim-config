@@ -1,9 +1,3 @@
-local install_path = vim.fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
-if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
-end
-vim.cmd.packadd('packer.nvim')
-
 return require('packer').startup(function(use)
   use 'lewis6991/impatient.nvim'
   use 'wbthomason/packer.nvim'
@@ -94,26 +88,20 @@ return require('packer').startup(function(use)
       name = string.gsub(suffix, '-', '_'), keyword_length = 3
     })
   end
+
+  -- use { 'SmiteshP/nvim-navic', after = 'nvim-lspconfig' }
+  use { 'sigmaSd/deno-nvim',   after = 'nvim-lspconfig' }
   use {
     'hrsh7th/nvim-cmp',
-    requires = 'neovim/nvim-lspconfig',
+    -- requires = {
+    --   'SmiteshP/nvim-navic',
+    --   'sigmaSd/deno-nvim',
+    --   'onsails/lspkind-nvim'
+    -- },
     after = 'nvim-lspconfig',
     config = function() require('completion').setup(cmp_sources) end
   }
 
-  use {
-    'SmiteshP/nvim-navic',
-    after = 'nvim-lspconfig'
-  }
-  use {
-    'sigmaSd/deno-nvim',
-    after = 'nvim-lspconfig'
-  }
-  use {
-    'michaelb/sniprun',
-    ft = 'markdown',
-    run = 'bash ./install.sh'
-  }
   use {
     'kevinhwang91/nvim-bqf',
     ft = 'qf'
