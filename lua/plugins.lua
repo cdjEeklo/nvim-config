@@ -25,7 +25,7 @@ return require('packer').startup(function(use)
   }
   use {
     'mrshmllow/document-color.nvim',
-    config = function() return require('document-color').setup{mode = "background"} end
+    config = function() return require('document-color').setup{ mode = "background" } end,
   }
   use {
     'neovim/nvim-lspconfig',
@@ -89,8 +89,40 @@ return require('packer').startup(function(use)
     })
   end
 
- use { 'SmiteshP/nvim-navic', requires = 'neovim/nvim-lspconfig' }
- use {
+use { 'SmiteshP/nvim-navic', requires = 'neovim/nvim-lspconfig' }
+use{
+  'Wansmer/treesj',
+  requires = { 'nvim-treesitter' },
+  config = function()
+      local utils = require('treesj.langs.utils')
+      local css = require('treesj.langs.css')
+      local langs = {
+        scss = utils.merge_preset(css, {}),
+        javascript = {
+          object = utils.set_preset_for_dict(),
+          array = utils.set_preset_for_list(),
+          formal_parameters = utils.set_preset_for_args(),
+          arguments = utils.set_preset_for_args(),
+          statement_block = utils.set_preset_for_statement({
+            join = {
+              no_insert_if = {
+                'function_declaration',
+                'try_statement',
+                'if_statement',
+              },
+            },
+          }),
+        },
+        lua = {
+          table_constructor = utils.set_preset_for_dict(),
+          arguments = utils.set_preset_for_args(),
+          parameters = utils.set_preset_for_args(),
+        },
+      }
+      require('treesj').setup({ max_join_length = 240, langs = langs })
+    end,
+  }
+  use {
     'lewis6991/cleanfold.nvim',
     config = function() require('cleanfold').setup() end
   }
