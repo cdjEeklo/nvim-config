@@ -23,6 +23,7 @@ local on_a = function(client, bufnr)
   if client.server_capabilities.colorProvider then
     require("document-color").buf_attach(bufnr)
   end
+  require('folding').on_attach()
   navic.attach(client, bufnr)
 end
 

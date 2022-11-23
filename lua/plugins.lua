@@ -89,7 +89,12 @@ return require('packer').startup(function(use)
     })
   end
 
-  -- use { 'SmiteshP/nvim-navic', after = 'nvim-lspconfig' }
+ use { 'SmiteshP/nvim-navic', requires = 'neovim/nvim-lspconfig' }
+ use {
+    'lewis6991/cleanfold.nvim',
+    config = function() require('cleanfold').setup() end
+  }
+  use { 'pierreglaser/folding-nvim' }
   use { 'sigmaSd/deno-nvim',   after = 'nvim-lspconfig' }
   use {
     'hrsh7th/nvim-cmp',
