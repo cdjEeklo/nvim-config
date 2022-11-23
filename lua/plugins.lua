@@ -89,6 +89,29 @@ return require('packer').startup(function(use)
     })
   end
 
+  use {
+    'lewis6991/cleanfold.nvim',
+    disable = true,
+    config = function() require('cleanfold').setup() end
+  }
+  use { 'pierreglaser/folding-nvim' }
+  use { "barreiroleo/ltex-extra.nvim" }
+  use {
+    'jose-elias-alvarez/null-ls.nvim',
+    config = function()
+      local ls = require("null-ls")
+      ls.setup({
+        sources = {
+          -- sudo apt install chktex
+          ls.builtins.diagnostics.chktex,
+          ls.builtins.completion.spell.with({
+            filetypes = { 'tex', 'text', 'markdown' },
+          }),
+          ls.builtins.diagnostics.trail_space,
+        }
+      })
+    end
+  }
   -- use { 'SmiteshP/nvim-navic', after = 'nvim-lspconfig' }
   use { 'sigmaSd/deno-nvim',   after = 'nvim-lspconfig' }
   use {

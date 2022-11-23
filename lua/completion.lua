@@ -2,7 +2,7 @@ local cmp     = require('cmp')
 local luasnip = require('luasnip')
 local kind    = require('lspkind')
 local lsp     = require('lspconfig')
-local navic   = require('nvim-navic')
+-- local navic   = require('nvim-navic')
 local deno    = require('deno-nvim')
 
 luasnip.config.setup({enable_autosnippets = true})
@@ -23,7 +23,8 @@ local on_a = function(client, bufnr)
   if client.server_capabilities.colorProvider then
     require("document-color").buf_attach(bufnr)
   end
-  navic.attach(client, bufnr)
+  require('folding').on_attach()
+  -- navic.attach(client, bufnr)
 end
 
 -- deno-nvim will setup lsp-config for denols
@@ -49,6 +50,91 @@ deno.setup({
     }
   }
 })
+
+lsp.ltex.setup {
+  capabilities = cap,
+  on_attach = function(client, bufnr)
+    -- your other on_attach functions.
+    require('ltex_extra').setup{
+      load_langs = { 'nl-BE' }, -- table <string> : languages for witch dictionaries will be loaded
+      init_check = true, -- boolean : whether to load dictionaries on startup
+      path = nil, -- string : path to store dictionaries. Relative path uses current working directory
+      log_level = 'error', -- string : 'none', 'trace', 'debug', 'info', 'warn', 'error', 'fatal'
+    }
+  end,
+  settings = {
+    ltex = {
+      enabled = { 'latex', 'tex', 'bib', 'markdown' },
+      language = 'nl',
+      diagnosticSeverity = 'information',
+      setenceCacheSize = 2000,
+      additionalRules = {
+        enablePickyRules = true,
+        motherTongue = 'nl',
+      },
+      trace = { server = 'verbose' },
+      -- your settings.
+    }
+  }
+}
+
+lsp.texlab.setup{
+  cmd = {'texlab', '--log-file', vim.fn.stdpath('cache') .. '/texlab-log', '-vvvv'},
+  filetypes = {"tex", "bib"},
+  capabilities = cap,
+  on_attach = on_a,
+  settings = {
+    texlab = {
+      single_file_support = true,
+      -- rootDirectory = nil,
+      build = _G.TeXMagicBuildConfig,
+      -- https://tex.stackexchange.com/a/83649/42348
+      -- function! SyncTexForward()
+      --   let s:syncfile = fnamemodify(fnameescape(Tex_GetMainFileName()), ":r").".pdf"
+      --   let execstr = "silent !okular --unique ".s:syncfile."\\#src:".line(".").expand("%\:p").' &'
+      --   exec execstr
+      -- endfunction
+      diagnosticsDelay = 1000,
+      diagnostics = {
+        ignoredPatterns = { ".*punctuation.*" }
+      },
+      forwardSearch = {
+        executable = "okular",
+        args = {"--unique", "file:%p#src:%l%f"}
+      }
+    }
+  }
+}
+
+lsp.cssls.setup{
+  capabilities = cap,
+  on_attach = function(client, bufnr)
+    if client.server_capabilities.colorProvider then
+      require('folding').on_attach()
+      require("document-color").buf_attach(bufnr)
+    end
+  end,
+}
+lsp.html.setup({
+  capabilities = cap,
+  on_attach = function(client)
+    -- disabled this to default to the null-ls 'tidy' source
+    -- disabling capabilities is not appropriate, as it is an interface that will probably be dropped.
+    -- client.server_capabilities.documentFormattingProvider = false
+    client.server_capabilities.document_formatting = false
+    client.server_capabilities.document_range_formatting = false
+    require('folding').on_attach()
+  end,
+})
+-- emmet_ls didn't work for me
+-- lsp.emmet_ls.setup{
+--   capabilities = cap,
+--   settings = {
+--     single_file_support = true
+--   }
+-- }
+-- lsp.pyls.setup{ capabilities = capabilities }
+--
 
 lsp.cssls.setup{ capabilities = cap, on_attach = on_a }
 lsp.html.setup{ capabilities = cap, on_attach = on_a }
