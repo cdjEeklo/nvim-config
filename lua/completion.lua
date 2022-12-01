@@ -5,6 +5,7 @@ local lsp     = require('lspconfig')
 local navic   = require('nvim-navic')
 local deno    = require('deno-nvim')
 
+luasnip.filetype_extend("javascript", { "html", "javascriptreact" })
 luasnip.config.setup({enable_autosnippets = true})
 require('luasnip.loaders.from_lua').lazy_load({paths = vim.fn.stdpath('config') .. "/snippets"})
 require('luasnip.loaders.from_vscode').lazy_load()
@@ -24,17 +25,22 @@ local on_a = function(client, bufnr)
     require("document-color").buf_attach(bufnr)
   end
   require('folding').on_attach()
-  navic.attach(client, bufnr)
+  if client.name == 'tailwindcss' then
+    vim.notify('not using navic', vim.log.levels.WARN)
+  else
+    navic.attach(client, bufnr)
+  end
 end
 
 -- deno-nvim will setup lsp-config for denols
 -- otherwise don't forget to add the root_dir option to prevent using it for typescript files in a node project
--- root_dir = nvim_lsp.util.root_pattern("deno.json", "deno.jsonc")
+-- root_dir = lsp.util.root_pattern("deno.json", "deno.jsonc")
 -- lsp.denols.setup{ capabilities = cap, on_attach = on_a, init_options = { lint = true } }
 deno.setup({
   server = {
     on_attach = on_a,
     capabilites = cap,
+    root_dir = lsp.util.root_pattern("deno.json", "deno.jsonc"),
     init_options = { lint = true },
     settings = {
       deno = {
@@ -53,7 +59,7 @@ deno.setup({
 
 lsp.cssls.setup{ capabilities = cap, on_attach = on_a }
 lsp.html.setup{ capabilities = cap, on_attach = on_a }
-lsp.tailwindcss.setup{ capabilities = cap, on_attach = on_a }
+lsp.tailwindcss.setup{ capabilities = cap, on_attach = on_a, root_dir = lsp.util.root_pattern("deno.json", "deno.jsonc", "package.json") }
 lsp.tsserver.setup{ capabilities = cap, on_attach = on_a, root_dir = lsp.util.root_pattern("package.json") }
 lsp.gdscript.setup{ capabilities = cap, on_attach = on_a }
 lsp.clangd.setup{ capabilities = cap, on_attach = on_a }

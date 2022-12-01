@@ -37,7 +37,8 @@ o.incsearch     = true  -- Show matches
 o.modeline      = true  -- Use the modeline
 o.showcmd       = true  -- Show me what I'm typing
 o.showmatch     = true  -- Do not show matching brackets by flickering
-o.splitright    = true  -- Put the a new window on the right
+o.splitright    = true  -- Put a new window on the right
+o.splitbelow    = true  -- Put a new window below an existing one
 o.termguicolors = true  -- True color support
 o.undofile      = true  -- Maintain undo history between sessions
 o.wildmenu      = true  -- Command-line completion
@@ -74,6 +75,7 @@ o.fillchars      = {vert = '│', fold = '▀', eob = ' '}
 o.listchars      = {tab = '▸ ', trail = '-', extends = '»', precedes = '«', nbsp = ' '}
 
 o.foldlevel     = 2
+o.foldminlines  = 30
 o.undolevels    = 1000
 o.history       = 5000
 o.cmdheight     = 3
