@@ -233,7 +233,7 @@ keymap.set('n', '<up>',
   }
 )
 
-keymap.set('n', '<s-down>', '<cmd>sp +te | sleep 1 | resize 8 | startinsert', { desc = 'Open a terminal window in a split below' }
+keymap.set('n', '<s-down>', '<cmd>sp +te | sleep 1 | resize 8 | startinsert<CR>', { desc = 'Open a terminal window in a split below' })
 
 -- TODO: make this a function and check that the spell setting is true
 keymap.set('n', '<leader>1', '1z=', { desc = 'Pick the first spelling suggestion.'})
