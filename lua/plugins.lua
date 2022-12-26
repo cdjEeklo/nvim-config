@@ -1,5 +1,18 @@
 return require('packer').startup(function(use)
   use 'lewis6991/impatient.nvim'
+  use {
+    'rmagatti/auto-session',
+    config = function()
+      require("auto-session").setup{
+        log_level = "error",
+        auto_session_suppress_dirs = { "~/", "~/Private", "~/Downloads", "/usr/mnt/*", "/"},
+        auto_session_allowed_dirs = { "~/.config/*", "~/Documents/*", "~/Desktop/*"},
+        auto_save_enabled = true,
+        auto_restore_enabled = true,
+        auto_session_use_git_branch = true
+      }
+    end
+  }
   use 'wbthomason/packer.nvim'
   use {
     'williamboman/mason.nvim',

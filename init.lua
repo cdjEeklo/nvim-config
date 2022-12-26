@@ -59,6 +59,7 @@ o.completeopt    = { 'menu', 'menuone', 'noselect' }
 o.breakindentopt = { min = '20', shift = '0', 'sbr' }
 o.wildmode       = { 'longest:full', 'full' }
 o.wildoptions    = { 'pum','tagfile' }
+o.sessionoptions = { 'blank', 'buffers', 'curdir', 'folds', 'help', 'tabpages', 'winsize', 'winpos', 'terminal', 'localoptions' }
 o.shortmess      = 'caOstTIF'
 o.inccommand     = 'nosplit'
 -- o.guifont        = 'UbuntuMono NF:h15'
