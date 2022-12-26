@@ -9,7 +9,21 @@ return require('packer').startup(function(use)
         auto_session_allowed_dirs = { "~/.config/*", "~/Documents/*", "~/Desktop/*"},
         auto_save_enabled = true,
         auto_restore_enabled = true,
-        auto_session_use_git_branch = true
+        auto_session_use_git_branch = true,
+        post_cwd_changed_hook = function() require("lualine").refresh() end,
+      }
+    end
+  }
+  use {
+    'nvim-lualine/lualine.nvim',
+    requires = { 'folke/tokyonight.nvim', 'rmagatti/auto-session', 'kyazdani42/nvim-web-devicons' },
+    config = function()
+      require('lualine').setup{
+        options = { theme = 'tokyonight' },
+        sections = {
+          lualine_b = {'branch', 'diagnostics'},
+          lualine_c = {require('auto-session-library').current_session_name}
+        }
       }
     end
   }
