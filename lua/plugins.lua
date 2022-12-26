@@ -335,5 +335,9 @@ use{
       }
     end
   }
+  use {
+    'Mateiadrielrafael/scrap.nvim',
+    config = function() return require('abbreviations') end
+  }
 end)
 
