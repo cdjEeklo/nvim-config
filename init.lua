@@ -179,6 +179,11 @@ o.undodir   = xdh..'/undo//' -- Set the undo directory
 g.tex_flavor = 'latex'
 
 local keymap = vim.keymap
+keymap.set('n', '<s-esc>', '<cmd>qa<cr>',
+  {
+    desc = 'Exit with Shift+Escape unless there are some buffers which have been changed.'
+  }
+)
 -- keymap.set('n', '<left>',  '<cmd>tabp<cr>')
 keymap.set('n', '<left>',
   function()
