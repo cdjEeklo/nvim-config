@@ -339,5 +339,11 @@ use{
     'Mateiadrielrafael/scrap.nvim',
     config = function() return require('abbreviations') end
   }
+  use {
+    'rareitems/printer.nvim',
+    config = function()
+      require('printer').setup({ keymap = '<leader>p' })
+    end
+  }
 end)
 
