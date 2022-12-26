@@ -1,0 +1,26 @@
+Windows Registry Editor Version 5.00
+
+; First please inspect the relevant registry keys, and export them for a backup.
+
+; [HKEY_CURRENT_USER\Control Panel\Keyboard]
+; "KeyboardDelay"="200"
+; "KeyboardSpeed"="10"
+
+; Modify the key repeat delay and rate
+; If you open the Filter Keys configuration screen by accident,
+; it will reset AutoRepeatDelay and AutoRepeatRate to 300,
+; the minimum values known by it!
+
+[HKEY_CURRENT_USER\Control Panel\Accessibility\Keyboard Response]
+"AutoRepeatDelay"="200"
+"AutoRepeatRate"="10"
+"DelayBeforeAcceptance"="0"
+"Flags"="27"
+"BounceTime"="0"
+
+; Modify some keys for all users (requires admin privileges)
+; pressing the Esc key will generate Escape as normal,
+; pressing CapsLock will also generate Escape,
+; and pressing ScrollLock will generate CapsLock (and you cannot generate ScrollLock).
+[HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Keyboard Layout]
+"Scancode Map"=hex:00,00,00,00,00,00,00,00,03,00,00,00,3a,00,46,00,01,00,3a,00,00,00,00,00

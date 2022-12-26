@@ -5,3 +5,6 @@
 !lua
 !lua/*.lua
 !init.lua
+!tools
+!tools/*.reg
+!tools/*.sh

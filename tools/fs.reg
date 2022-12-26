@@ -1,0 +1,32 @@
+Windows Registry Editor Version 5.00
+
+; First please inspect the relevant registry keys, and export them for a backup.
+
+; show file extensions and hidden files
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
+"HideFileExt"=dword:00000000
+"Hidden"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Folder\Hidefileext]
+"DefaultValue"=dword:00000000
+
+; EXPERIMENTAL UNTESTED
+; https://askubuntu.com/a/1380274
+; \\wsl.localhost\Ubuntu\usr\bin\nvim
+; [HKEY_CLASSES_ROOT\SystemFileAssociations\image\shell\edit\command]
+; @="\"\\\\wsl.localhost\\Ubuntu\\usr\\bin\\bash -c /usr/bin/nvim\" \"%1\""
+; @="\"C:\\Program Files (x86)\\Notepad++\\Notepad++.exe\" \"%1\""
+
+; [HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\notepad.exe]
+; "Debugger"="\\wsl.localhost\Ubuntu\usr\bin\nvim"
+
+; [HKEY_CLASSES_ROOT\*Shell\Neovim\command]
+
+; [HKEY_CLASSES_ROOT\*\shell\Open With Neovim"]
+; "Icon"="C:\\.....exe"
+;
+; [HKEY_CLASSES_ROOT\*\shell\Open With Neovim\command"]
+; @="\"C:\\.....exe\" \"%1\""
+
+
+; other modifications, see https://github.com/SeregaSPb/Windows-10-batch-optimizer/blob/master/Win10optimizer.bat
