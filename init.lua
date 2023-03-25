@@ -54,7 +54,7 @@ w.list           = true  -- Use list mode to show listchars
 o.belloff        = 'all'  -- Turn off bell
 o.backupcopy     = 'yes'  -- Overwrite files to update
 o.clipboard      = 'unnamedplus'
-o.diffopt        = { 'iblank', 'iwhiteeol', 'linematch:60', 'internal', 'filler', 'closeoff' }
+o.diffopt        = { 'iblank', 'iwhiteeol', 'internal', 'filler', 'closeoff' }
 o.completeopt    = { 'menu', 'menuone', 'noselect' }
 o.breakindentopt = { min = '20', shift = '0', 'sbr' }
 o.wildmode       = { 'longest:full', 'full' }
