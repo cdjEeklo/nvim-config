@@ -56,7 +56,7 @@ return require('packer').startup(function(use)
   }
   use {
     'neovim/nvim-lspconfig',
-    after = 'mason-lspconfig.nvim'
+  --  after = 'mason-lspconfig.nvim'
   }
   use {
     'mfussenegger/nvim-dap',
