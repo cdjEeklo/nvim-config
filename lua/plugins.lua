@@ -22,7 +22,7 @@ return require('packer').startup(function(use)
         options = { theme = 'tokyonight' },
         sections = {
           lualine_b = {'branch', 'diagnostics'},
-          lualine_c = {require('auto-session-library').current_session_name}
+          lualine_c = {require('auto-session.lib').current_session_name}
         }
       }
     end
@@ -240,6 +240,10 @@ use{
     end,
   }
   use {
+    'tpope/vim-rhubarb',
+    requires = { 'tpope/vim-fugitive' },
+  }
+  use {
     'nvim-neotest/neotest',
     ft = { 'python', 'typescript', 'javasript' },
     requires = {
@@ -314,6 +318,7 @@ use{
       }
     end
   }
+  use { 'dkarter/bullets.vim' }
   use {
     'monaqa/dial.nvim',
     disable = true,
