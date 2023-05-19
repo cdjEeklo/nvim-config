@@ -24,10 +24,10 @@ local on_a = function(client, bufnr)
   if client.server_capabilities.colorProvider then
     require("document-color").buf_attach(bufnr)
   end
-  require('folding').on_attach()
-  if client.name == 'tailwindcss' then
-    vim.notify('not using navic', vim.log.levels.WARN)
-  else
+  if not client.name == 'emmet_ls' then
+    require('folding').on_attach()
+  end
+  if client.server_capabilities.documentSymbolProvider then
     navic.attach(client, bufnr)
   end
 end
@@ -59,8 +59,10 @@ deno.setup({
 
 lsp.cssls.setup{ capabilities = cap, on_attach = on_a }
 lsp.html.setup{ capabilities = cap, on_attach = on_a }
+lsp.emmet_ls.setup{ capabilities = cap, on_attach = on_a, filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' } }
 lsp.tailwindcss.setup{ capabilities = cap, on_attach = on_a, root_dir = lsp.util.root_pattern("deno.json", "deno.jsonc", "package.json") }
 lsp.tsserver.setup{ capabilities = cap, on_attach = on_a, root_dir = lsp.util.root_pattern("package.json") }
+lsp.prismals.setup{ capabilities = cap, on_attach = on_a, root_dir = lsp.util.root_pattern("package.json") }
 lsp.gdscript.setup{ capabilities = cap, on_attach = on_a }
 lsp.clangd.setup{ capabilities = cap, on_attach = on_a }
 

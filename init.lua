@@ -349,10 +349,13 @@ vim.api.nvim_create_autocmd('LspAttach', {
     keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, { noremap=true, silent=true, buffer = args.buf })
     keymap.set('n', 'gi', vim.lsp.buf.implementation, { noremap=true, silent=true, buffer = args.buf })
     keymap.set('n', 'gd', vim.lsp.buf.definition, { noremap=true, silent=true, buffer = args.buf })
-    keymap.set('n', '<space>D', vim.lsp.buf.type_definition, { noremap=true, silent=true, buffer = args.buf })
+    keymap.set('n', '<space>d', vim.lsp.buf.type_definition, { noremap=true, silent=true, buffer = args.buf })
     keymap.set('n', '<space>f', function() vim.lsp.buf.format { async = true } end, { noremap=true, silent=true, buffer = args.buf })
-    keymap.set('n', '<space>ca', vim.lsp.buf.code_action, { noremap=true, silent=true, buffer = args.buf })
-    keymap.set('n', '<space>rn', vim.lsp.buf.rename, { noremap=true, silent=true, buffer = args.buf })
+    keymap.set('n', '<space>c', vim.lsp.buf.code_action, { noremap=true, silent=true, buffer = args.buf })
+    keymap.set('n', '<space>r', vim.lsp.buf.rename, { noremap=true, silent=true, buffer = args.buf })
+    keymap.set('n', '<space>e', vim.diagnostic.open_float, {noremap = true, silent = true, buffer = args.buf})
+    keymap.set('n', '<space>[', vim.diagnostic.goto_prev, {noremap = true, silent = true, buffer = args.buf})
+    keymap.set('n', '<space>]', vim.diagnostic.goto_next, {noremap = true, silent = true, buffer = args.buf})
     if not (args.data and args.data.client_id) then
       return
     end
