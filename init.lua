@@ -327,6 +327,22 @@ keymap.set({'n', 'v'}, '-',
   { desc = 'Toggle jumping to the last character and column on the line.' }
 )
 
+keymap.set('i', '<C-;>',
+  function()
+    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+    vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, col, { fn.strftime('%F') })
+  end,
+  { desc = 'Insert the current date (MS Excel-like shortcut)' }
+)
+
+keymap.set('i', '<C-S-;>',
+  function()
+    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+    vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, col, { fn.strftime('%R') })
+  end,
+  { desc = 'Insert the current time (MS Excel-like shortcut)' }
+)
+
 vim.api.nvim_create_autocmd('LspAttach', {
   callback = function(args)
     keymap.set('n', 'K', vim.lsp.buf.hover, { noremap=true, silent=true, buffer = args.buf })
