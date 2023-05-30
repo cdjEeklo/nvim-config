@@ -54,6 +54,7 @@ return require('packer').startup(function(use)
     'mrshmllow/document-color.nvim',
     config = function() return require('document-color').setup{ mode = "background" } end,
   }
+  use 'b0o/schemastore.nvim'
   use {
     'neovim/nvim-lspconfig',
   --  after = 'mason-lspconfig.nvim'

@@ -65,6 +65,53 @@ lsp.tsserver.setup{ capabilities = cap, on_attach = on_a, root_dir = lsp.util.ro
 lsp.prismals.setup{ capabilities = cap, on_attach = on_a, root_dir = lsp.util.root_pattern("package.json") }
 lsp.gdscript.setup{ capabilities = cap, on_attach = on_a }
 lsp.clangd.setup{ capabilities = cap, on_attach = on_a }
+lsp.yamlls.setup {
+  settings = {
+    yaml = {
+      schemaStore = { enable = false },
+      schemas = require('schemastore').yaml.schemas{
+        select = {
+          'GitHub Action',
+          'GitVersion',
+          'gitlab-ci',
+          '.build.yml',
+          'dependabot.json',
+          'Jekyll',
+          '.mocharc',
+          '.pre-commit-config.yml',
+          '.pre-commit-hooks.yml',
+          'prisma.yml',
+          'Read the Docs',
+          'JSON Resume',
+          '.travis.yml',
+          'tslint.json',
+          'docker-compose.yml',
+          'Mason Registry',
+          '.clang-format',
+        },
+      },
+    },
+  },
+}
+lsp.jsonls.setup {
+  settings = {
+    json = {
+      schemas = require('schemastore').json.schemas {
+        select = {
+          '.postcssrc',
+          '.csslintrc',
+          '.eslintrc',
+          'package.json',
+          'JSONPatch',
+          'JSON Resume',
+          'tsconfig.json',
+          'Deno',
+        },
+      },
+      validate = { enable = true },
+    },
+  },
+}
 
 local has_words_before = function()
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
