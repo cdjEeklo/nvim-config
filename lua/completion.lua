@@ -2,13 +2,19 @@ local cmp     = require('cmp')
 local luasnip = require('luasnip')
 local kind    = require('lspkind')
 local lsp     = require('lspconfig')
+local lspcfg  = require 'lspconfig.configs'
 local navic   = require('nvim-navic')
 local deno    = require('deno-nvim')
 
-luasnip.filetype_extend("javascript", { "html", "javascriptreact" })
-luasnip.config.setup({enable_autosnippets = true})
-require('luasnip.loaders.from_lua').lazy_load({paths = vim.fn.stdpath('config') .. "/snippets"})
-require('luasnip.loaders.from_vscode').lazy_load()
+for _, ft in pairs({'javascript','typescript','javascriptreact','typescriptreact'}) do
+  luasnip.filetype_extend(ft, { 'html', 'css' })
+end
+luasnip.config.setup({
+  update_events = 'TextChanged,TextChangedI',
+  enable_autosnippets = true
+})
+require('luasnip.loaders.from_lua').lazy_load({paths = vim.fn.stdpath('config') .. '/lua/snippets.lua'})
+-- require('luasnip.loaders.from_vscode').lazy_load()
 
 local cap = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
 if cap.textDocument.completion.completionItem then
@@ -20,32 +26,52 @@ end
 if cap.textDocument.colorProvider then
   cap.textDocument.colorProvider = true
 end
+
 local on_a = function(client, bufnr)
-  if client.server_capabilities.colorProvider then
-    require("document-color").buf_attach(bufnr)
+  local active_clients = vim.lsp.get_active_clients()
+  if client.name == 'denols' then
+    for _, client_ in pairs(active_clients) do
+      -- stop tsserver if denols is already active
+      if client_.name == 'tsserver' then client_.stop() end
+    end
+  elseif client.name == 'tsserver' then
+    for _, client_ in pairs(active_clients) do
+      -- prevent tsserver from starting if denols is already active
+      if client_.name == 'denols' then client.stop() end
+    end
   end
-  if not client.name == 'emmet_ls' then
+  if client.server_capabilities.colorProvider then
+    require('document-color').buf_attach(bufnr)
+  end
+  if not client.name == 'emmet_language_server' then
     require('folding').on_attach()
   end
-  if client.server_capabilities.documentSymbolProvider then
+  if client.server_capabilities.documentSymbolProvider and not navic.is_available(bufnr) then
     navic.attach(client, bufnr)
   end
 end
 
 -- deno-nvim will setup lsp-config for denols
 -- otherwise don't forget to add the root_dir option to prevent using it for typescript files in a node project
--- root_dir = lsp.util.root_pattern("deno.json", "deno.jsonc")
+-- root_dir = lsp.util.root_pattern('deno.json', 'deno.jsonc')
 -- lsp.denols.setup{ capabilities = cap, on_attach = on_a, init_options = { lint = true } }
 deno.setup({
+  dap = {
+    adapter = {
+      executable = {
+        args = {vim.fn.stdpath('data')..'mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js', '${port}'},
+      }
+    }
+  },
   server = {
     on_attach = on_a,
     capabilites = cap,
-    root_dir = lsp.util.root_pattern("deno.json", "deno.jsonc"),
+    root_dir = lsp.util.root_pattern('deno.json', 'deno.jsonc'),
     init_options = { lint = true },
     settings = {
       deno = {
         inlayHints = {
-          parameterNames = { enabled = "all" },
+          parameterNames = { enabled = 'all' },
           parameterTypes = { enabled = true },
           variableTypes = { enabled = true },
           propertyDeclarationTypes = { enabled = true },
@@ -57,12 +83,52 @@ deno.setup({
   }
 })
 
+if not lspcfg.emmet_language_server then
+  lspcfg.emmet_language_server = {
+    default_config = {
+      cmd = { "emmet-language-server", "--stdio" },
+      root_dir = lsp.util.root_pattern('.git'),
+      settings = {}
+    }
+  }
+end
+        -- --- @type table<string, any> https://docs.emmet.io/customization/preferences/
+        -- preferences = {},
+        -- --- @type "always" | "never" Defaults to `"always"`
+        -- showExpandedAbbreviation = "always",
+        -- --- @type boolean Defaults to `true`
+        -- showAbbreviationSuggestions = true,
+        -- --- @type boolean Defaults to `false`
+        -- showSuggestionsAsSnippets = false,
+        -- --- @type table<string, any> https://docs.emmet.io/customization/syntax-profiles/
+        -- syntaxProfiles = {},
+        -- --- @type table<string, string> https://docs.emmet.io/customization/snippets/#variables
+        -- variables = {},
+        -- --- @type string[]
+        -- excludeLanguages = {}, }
+
+lsp.tailwindcss.setup{
+  capabilities = cap,
+  on_attach = on_a,
+  root_dir = lsp.util.root_pattern('deno.json', 'deno.jsonc', 'package.json'),
+  settings = {
+    tailwindCSS = {
+      experimental = {
+        classRegex = {
+          { "cva\\(([^)]*)\\)",
+           "[\"'`]([^\"'`]*).*?[\"'`]" },
+        },
+      },
+    },
+  },
+}
+
 lsp.cssls.setup{ capabilities = cap, on_attach = on_a }
 lsp.html.setup{ capabilities = cap, on_attach = on_a }
-lsp.emmet_ls.setup{ capabilities = cap, on_attach = on_a, filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' } }
-lsp.tailwindcss.setup{ capabilities = cap, on_attach = on_a, root_dir = lsp.util.root_pattern("deno.json", "deno.jsonc", "package.json") }
-lsp.tsserver.setup{ capabilities = cap, on_attach = on_a, root_dir = lsp.util.root_pattern("package.json") }
-lsp.prismals.setup{ capabilities = cap, on_attach = on_a, root_dir = lsp.util.root_pattern("package.json") }
+lsp.custom_elements_ls.setup{ capabilities = cap, on_attach = on_a }
+lsp.emmet_language_server.setup{ capabilities = cap, on_attach = on_a, filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' } }
+lsp.tsserver.setup{ capabilities = cap, on_attach = on_a, single_file_support = true, root_dir = lsp.util.find_node_modules_ancestor }
+lsp.prismals.setup{ capabilities = cap, on_attach = on_a, single_file_support = true, root_dir = lsp.util.find_node_modules_ancestor }
 lsp.gdscript.setup{ capabilities = cap, on_attach = on_a }
 lsp.clangd.setup{ capabilities = cap, on_attach = on_a }
 lsp.yamlls.setup {
@@ -115,7 +181,7 @@ lsp.jsonls.setup {
 
 local has_words_before = function()
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('%s') == nil
 end
 
 local function setup(mysources)
@@ -134,7 +200,7 @@ local function setup(mysources)
     }
   })
 
-  cmp.setup.cmdline(":", {
+  cmp.setup.cmdline(':', {
     sources = cmp.config.sources({
       {
         name = 'cmdline_history',
@@ -142,35 +208,35 @@ local function setup(mysources)
         keyword_length = 3
       },
       {
-        name = "cmdline",
+        name = 'cmdline',
         max_item_count = 3,
         keyword_length = 3,
         keyword_pattern = [[^\@<!Man\s]]
       },
       {
-        name = "path",
+        name = 'path',
         max_item_count = 2,
         keyword_length = 6
       },
     }),
   })
 
-  cmp.setup.cmdline("@", {
+  cmp.setup.cmdline('@', {
     sources = cmp.config.sources({
-      { name = "path" },
-      { name = "cmdline", keyword_pattern = [[^\@<!Man\s]] },
+      { name = 'path' },
+      { name = 'cmdline', keyword_pattern = [[^\@<!Man\s]] },
     }),
   })
 
   cmp.setup {
     mapping = cmp.mapping.preset.insert({
-      ["<C-k>"] = cmp.mapping.scroll_docs(-4),
-      ["<C-j>"] = cmp.mapping.scroll_docs(4),
-      ["<C-e>"] = cmp.mapping.close(),
-      ["<c-y>"] = cmp.mapping(
+      ['<C-k>'] = cmp.mapping.scroll_docs(-4),
+      ['<C-j>'] = cmp.mapping.scroll_docs(4),
+      ['<C-e>'] = cmp.mapping.close(),
+      ['<c-y>'] = cmp.mapping(
       cmp.mapping.disable, { 'i', 'c', 's' }
       ),
-      ["<Tab>"] = cmp.mapping(function(fallback)
+      ['<Tab>'] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_next_item()
         elseif luasnip.expand_or_jumpable() then
@@ -180,8 +246,8 @@ local function setup(mysources)
         else
           fallback()
         end
-      end, { "i", "s" }),
-      ["<S-Tab>"] = cmp.mapping(function(fallback)
+      end, { 'i', 's' }),
+      ['<S-Tab>'] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_prev_item()
         elseif luasnip.jumpable(-1) then
@@ -189,30 +255,30 @@ local function setup(mysources)
         else
           fallback()
         end
-      end, { "i", "s" }),
-      ["<C-l>"] = cmp.mapping(function(fallback)
+      end, { 'i', 's' }),
+      ['<C-l>'] = cmp.mapping(function(fallback)
         -- NOTE: experimental
         if luasnip.choice_active() then
           luasnip.change_choice(1)
         else
           fallback()
         end
-      end, { "i", "s" }),
-      ["<C-h>"] = cmp.mapping(function(fallback)
+      end, { 'i', 's' }),
+      ['<C-h>'] = cmp.mapping(function(fallback)
         if luasnip.choice_active() then
           luasnip.change_choice(-1)
         else
           fallback()
         end
-      end, { "i", "s" }),
-      ["<CR>"] = cmp.mapping(function(fallback)
+      end, { 'i', 's' }),
+      ['<CR>'] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.confirm({ select = true })
         else
           -- TODO: find and replicate my old MyCR() vimscript function
           fallback()
         end
-      end, { "i", "s" }),
+      end, { 'i', 's' }),
     }),
 
     -- the order of your sources matter
@@ -232,12 +298,12 @@ local function setup(mysources)
       format = kind.cmp_format {
         with_text = true,
         menu = {
-          luasnip = "[snip]",
-          nvim_lsp = "[LSP]",
-          path = "[path]",
-          buffer = "[buf]",
-          -- emmet_ls = "[emmet]",
-          nvim_lua = "[api]",
+          luasnip = '[snip]',
+          nvim_lsp = '[LSP]',
+          path = '[path]',
+          buffer = '[buf]',
+          -- emmet_ls = '[emmet]',
+          nvim_lua = '[api]',
         },
       },
     },
