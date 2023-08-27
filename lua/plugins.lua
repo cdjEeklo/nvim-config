@@ -41,18 +41,59 @@ return require('packer').startup(function(use)
       }
     end
   }
-  use {
-    'jayp0521/mason-nvim-dap.nvim',
-    after = { 'mason.nvim', 'nvim-dap' },
-    config = function()
-      require("mason-nvim-dap").setup{
-        automatic_installation = true
-      }
-    end
-  }
+
+  -- use {
+  --   'jayp0521/mason-nvim-dap.nvim',
+  --   after = { 'mason.nvim', 'nvim-dap' },
+  --   config = function()
+  --     require('mason-nvim-dap').setup{
+  --       automatic_installation = true,
+  --       ensure_installed = { 'js', 'python' },
+  --       handlers = {
+  --         function(config)
+  --           require('mason-nvim-dap').default_setup(config)
+  --         end,
+  --         python = function(config)
+  --           config.adapters = {
+  --             type = 'executable',
+  --             command = '/usr/bin/python3',
+  --             args = { '-m', 'debugpy.adapter' },
+  --           }
+  --           require('mason-nvim-dap').default_setup(config) -- don't forget this!
+  --         end,
+  --         js = function(config)
+  --         --   config.adapters = {
+  --         --     type = 'server',
+  --         --     host = 'localhost',
+  --         --     port = '${port}',
+  --         --     executable = {
+  --         --       command = 'node',
+  --         --       args = {vim.fn.stdpath('data')..'mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js', '${port}'},
+
+  --         --     }
+  --         --   }
+  --           config.configurations = {
+  --             {
+  --               type = 'pwa-node',
+  --               request = 'launch',
+  --               name = "Launch file",
+  --               runtimeExecutable = "deno",
+  --               runtimeArgs = { "run", "--inspect-wait", "--allow-all" },
+  --               program = "${file}",
+  --               cwd = "${workspaceFolder}",
+  --               attachSimplePort = 9229,
+  --             },
+  --           }
+  --           require('mason-nvim-dap').default_setup(config)
+  --         end,
+  --       },
+  --     }
+  --   end
+  -- }
+
   use {
     'mrshmllow/document-color.nvim',
-    config = function() return require('document-color').setup{ mode = "background" } end,
+    config = function() return require('document-color').setup{ mode = 'background' } end,
   }
   use 'b0o/schemastore.nvim'
   use {
@@ -62,6 +103,11 @@ return require('packer').startup(function(use)
   use {
     'mfussenegger/nvim-dap',
     config = function() return require('debugging') end
+  }
+  use {
+    'rcarriga/nvim-dap-ui',
+    requires = {'mfussenegger/nvim-dap'},
+    config = function() return require('dapui').setup() end
   }
   use {
     'lvimuser/lsp-inlayhints.nvim',
