@@ -21,13 +21,14 @@ elseif pcall(require, 'impatient') then
 end
 
 require('plugins')
--- require('completion')
 
 vim.cmd.filetype('plugin', 'indent', 'on')
 vim.cmd.syntax('on')
-g.loaded_spellfile_plugin = 1
--- for sniprun
-g.markdown_fenced_languages = { "javascript", "typescript", "bash", "lua", "python" }
+
+-- don't download spellfiles or ask to
+-- g.loaded_spellfile_plugin = 1
+-- TODO: self-host {en,nl,fr}.utf-8.spl {en,nl,fr}.utf-8.sug
+-- g.spellfile_URL = 'https://ftp.nluug.nl/pub/vim/runtime/spell'
 
 o.autoindent    = true  -- Maintain indent
 o.breakindent   = true  -- Maintain visually wrapped indent
@@ -242,10 +243,11 @@ keymap.set('n', '<up>',
 keymap.set('n', '<s-down>', '<cmd>sp +te | sleep 1 | resize 8 | startinsert<CR>', { desc = 'Open a terminal window in a split below' })
 
 -- TODO: make this a function and check that the spell setting is true
-keymap.set('n', '<leader>1', '1z=', { desc = 'Pick the first spelling suggestion.'})
+-- keymap.set('n', '<leader>s', '1z=', { desc = 'Pick the first spelling suggestion.'})
 
 -- in memory of Gilles Castel
-keymap.set('i', '<c-l>', '<c-g>u<Esc>[s1z=`]a<c-g>u', { desc = 'Pick the first spelling suggestion for mistakes before the cursor (with undo).'})
+-- terrible idea to map this to space
+keymap.set('i', '<space>', '<c-g>u<Esc>[s1z=`]a<c-g>u', { desc = 'Pick the first spelling suggestion for mistakes before the cursor (with undo).'})
 
 -- TODO: remove highlights when the cursor is no longer on a match
 keymap.set('n', '<c-l>', '<cmd>nohlsearch<cr>', { desc = 'Remove search highlights.'})
@@ -257,12 +259,13 @@ keymap.set('n', 'Q', '<nop>', { desc = 'I rather like Q to be a bit less accessi
 
 keymap.set('t', '<esc>', '<c-\\><c-n>', { desc = 'Escape "insert" mode in the terminal.'})
 
-keymap.set('n', '<space>', 'zxzjzo', { desc = 'Update folds and open the next one.'})
-keymap.set('n', '<leader><space>', 'zxzkzo[z', { desc = 'Update folds and open the previous one.'})
+keymap.set('n', 'zj', 'zxzjzo',   { remap = false, desc = 'Update folds and open the next one.'})
+keymap.set('n', 'zk', 'zxzkzo[z', { remap = false, desc = 'Update folds and open the previous one.'})
+
 keymap.set('v', '<', '<gv', { desc = 'Reselect the visual block after indent' })
 keymap.set('v', '>', '>gv', { desc = 'Reselect the visual block after outdent' })
 
-keymap.set('c', '<Left>', '<Space><BS><Left>', { desc = 'Move the cursor left instead of selecting a match.' })
+keymap.set('c', '<Left>', '<Space><BS><Left>',   { desc = 'Move the cursor left instead of selecting a match.' })
 keymap.set('c', '<Right>', '<Space><BS><Right>', { desc = 'Move the cursor right instead of selecting a match.' })
 
 -- FIX: Error detected while processing TextYankPost
@@ -306,13 +309,10 @@ keymap.set({'n', 'v'}, '-',
   function()
     local current_col = fn.virtcol('.')
     if w.wrap then
-      -- vim.cmd.normal('<End>')
       vim.cmd('normal <End>')
     elseif (o.virtualedit == nil) then
-      -- cmd.normal('g$')
       vim.cmd('normal g$')
     else
-      -- cmd.normal('$')
       vim.cmd('normal $')
     end
     local last_char = fn.virtcol('.')
@@ -343,19 +343,48 @@ keymap.set('i', '<C-S-;>',
   { desc = 'Insert the current time (MS Excel-like shortcut)' }
 )
 
+-- keymap.set(
+--   'n',
+--   '<space>S',
+--   function() require('luasnip.loaders').edit_snippet_files({edit = function(file) vim.cmd.sp(file) end}) end,
+--   { noremap=true, silent=true }
+-- )
+
+-- TODO: fix (file doesn't get opened?)
+vim.api.nvim_create_user_command(
+    "LuaSnipEdit",
+    function()
+      require('luasnip.loaders').edit_snippet_files{edit = function(file) vim.cmd.sp(file) end}
+    end,
+  {}
+)
+
+-- configure completion to trigger automatically
+vim.api.nvim_create_autocmd('FileType', {
+  pattern  = { 'dap-repl' },
+  callback = function(args)
+    require('dap.ext.autocompl').attach()
+  end,
+})
+
 vim.api.nvim_create_autocmd('LspAttach', {
   callback = function(args)
     keymap.set('n', 'K', vim.lsp.buf.hover, { noremap=true, silent=true, buffer = args.buf })
     keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, { noremap=true, silent=true, buffer = args.buf })
-    keymap.set('n', 'gi', vim.lsp.buf.implementation, { noremap=true, silent=true, buffer = args.buf })
-    keymap.set('n', 'gd', vim.lsp.buf.definition, { noremap=true, silent=true, buffer = args.buf })
-    keymap.set('n', '<space>d', vim.lsp.buf.type_definition, { noremap=true, silent=true, buffer = args.buf })
-    keymap.set('n', '<space>f', function() vim.lsp.buf.format { async = true } end, { noremap=true, silent=true, buffer = args.buf })
+    -- keymap.set('n', 'gi', vim.lsp.buf.implementation, { noremap=true, silent=true, buffer = args.buf })
+    -- keymap.set('n', 'gd', vim.lsp.buf.definition, { noremap=true, silent=true, buffer = args.buf })
+    -- keymap.set('n', 'gD', vim.lsp.buf.type_definition, { noremap=true, silent=true, buffer = args.buf })
+    keymap.set('n', '<space>f', function() vim.lsp.buf.format{ async = true } end, { noremap=true, silent=true, buffer = args.buf })
     keymap.set('n', '<space>c', vim.lsp.buf.code_action, { noremap=true, silent=true, buffer = args.buf })
     keymap.set('n', '<space>r', vim.lsp.buf.rename, { noremap=true, silent=true, buffer = args.buf })
     keymap.set('n', '<space>e', vim.diagnostic.open_float, {noremap = true, silent = true, buffer = args.buf})
     keymap.set('n', '<space>[', vim.diagnostic.goto_prev, {noremap = true, silent = true, buffer = args.buf})
     keymap.set('n', '<space>]', vim.diagnostic.goto_next, {noremap = true, silent = true, buffer = args.buf})
+    -- <space>b DAP breakpoint
+    -- <space>n DAP continue
+    -- <space>d DAP repl
+    -- <space>s split code block
+    -- <space>S luasnip edit snippets
     if not (args.data and args.data.client_id) then
       return
     end
@@ -405,16 +434,5 @@ vim.api.nvim_create_autocmd('FileType', {
     keymap.set('n', '<backspace>', '<c-o>', { silent=true, buffer=true, desc='jump back to the previous subject' })
     keymap.set('n', '<tab>',   "/\\([\\|*']\\)\\zs\\S*\\ze\\1<cr>", { silent=true, buffer=true, desc='select next tag' })
     keymap.set('n', '<s-tab>', "?\\([\\|*']\\)\\zs\\S*\\ze\\1<cr>", { silent=true, buffer=true, desc='select prev tag' })
-  end
-})
-
-vim.api.nvim_create_augroup('sniprun', {clear=true})
-vim.api.nvim_create_autocmd('FileType', {
-  group    = 'sniprun',
-  pattern  = 'markdown',
-  callback = function()
-    keymap.set('v', 'f', '<Plug>SnipRun', {silent = true})
-    keymap.set('n', '<leader>f', '<Plug>SnipRunOperator', {silent = true})
-    keymap.set('n', '<leader>ff', '<Plug>SnipRun', {silent = true})
   end
 })
